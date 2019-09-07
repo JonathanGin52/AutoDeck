@@ -1,6 +1,4 @@
-const speech = require('@google-cloud/speech');
 const language = require('@google-cloud/language');
-const s2t_client = new speech.SpeechClient();
 const nlp_client = new language.LanguageServiceClient();
 var express = require('express');
 var router = express.Router();
