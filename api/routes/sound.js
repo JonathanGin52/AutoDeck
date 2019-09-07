@@ -1,11 +1,11 @@
 const speech = require('@google-cloud/speech');
 const language = require('@google-cloud/language');
+const s2t_client = new speech.SpeechClient();
+const nlp_client = new language.LanguageServiceClient();
 var express = require('express');
 var router = express.Router();
 
-/* GET home page. */
 router.post('/', function(req, res, next) {
-	const client = new speech.SpeechClient();
 
 	const encoding = 'LINEAR16';
 	const sampleRateHertz = 48000;
@@ -17,11 +17,10 @@ router.post('/', function(req, res, next) {
 			sampleRateHertz: sampleRateHertz,
 			languageCode: languageCode,
 		},
-		interimResults: false, // If you want interim results, set this to true
+		interimResults: false,
 	};
 
-	// Create a recognize stream
-	const recognizeStream = client
+	const recognizeStream = s2t_client
 		.streamingRecognize(request)
 		.on('error', console.error)
 		.on('data', data =>
@@ -33,10 +32,21 @@ router.post('/', function(req, res, next) {
 		);
 });
 
-router.post('/nlp', function(req, res, next) {
-  const client = new language.LanguageServiceClient();
+router.post('/nlp/sentiment', function(req, res, next) {
+  // these should really be in constants but i'm lazy
+  nlp_request('sentiment', req, res);
+});
 
-  // The text to analyze
+router.post('/nlp/entities', function(req, res, next) {
+  nlp_request('entities', req, res);
+});
+
+function return_response(res, data) {
+  console.log(data);
+  res.json(data);
+}
+
+function nlp_request(type, req, res) {
   const text = req.body.text;
 
   const document = {
@@ -44,26 +54,25 @@ router.post('/nlp', function(req, res, next) {
     type: 'PLAIN_TEXT',
   };
 
-  // Detects the sentiment of the text
-  client
-    .analyzeSentiment({document: document})
-    .then(results => {
-      const sentiment = results[0].documentSentiment;
-
-      console.log(`Text: ${text}`);
-      console.log(`Sentiment score: ${sentiment.score}`);
-      console.log(`Sentiment magnitude: ${sentiment.magnitude}`);
-      res.json({ 
-        text: text,
-        sentiment_score: sentiment.score,
-        sentiment_magnitude: sentiment.magnitude,
+  if(type == 'entities') {
+    nlp_client
+      .analyzeEntities({document})
+      .then(results => {
+        return_response(res, results[0]);
+      })
+      .catch(err => {
+        return_response(res, { error: err });
       });
-    })
-    .catch(err => {
-      res.json({
-        error: err
+  } else {
+    nlp_client
+      .analyzeSentiment({document})
+      .then(results => {
+        return_response(res, results[0]);
+      })
+      .catch(err => {
+        return_response(res, { error: err });
       });
-    });
-});
+  }
+}
 
 module.exports = router;
