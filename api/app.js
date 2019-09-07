@@ -21,6 +21,9 @@ app.use(express.json());
 
 app.use('/', soundRouter);
 
+// static
+app.use(express.static('public'));
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
@@ -35,6 +38,22 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
+});
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname+'index.html'));
+});
+
+//init socket connection for real time text display
+app.post('/api/record', (req, res) => {
+  //do something here
+  res.status(200);
+});
+
+//server
+const port = 8080;
+app.listen(port, function () {
+  console.log('Example app listening on http://localhost:'+port);
 });
 
 module.exports = app;

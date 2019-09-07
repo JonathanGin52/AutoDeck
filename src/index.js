@@ -5,13 +5,14 @@ import App from './App';
 import DeckCreator from './DeckCreator';
 import * as serviceWorker from './serviceWorker';
 import { Route, Link, BrowserRouter as Router } from 'react-router-dom'
+import { createBrowserHistory as createHistory } from 'history'
+
+const history = createHistory()
 
 const routing = (
-  <Router>
-    <div>
+  <Router basename="#">
       <Route exact path="/" component={App} />
       <Route path="/deck-creator" component={DeckCreator} />
-    </div>
   </Router>
 )
 
