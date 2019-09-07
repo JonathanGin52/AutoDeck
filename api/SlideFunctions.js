@@ -41,7 +41,7 @@ class SlideFunctions {
     return new Promise((resolve, reject) => {
       let requests = [{
         createSlide: {
-          insertionIndex: params.insertionIndex || this.presentation.slides.length,
+          insertionIndex: params.insertionIndex || this.presentation.slides.length - 1,
           slideLayoutReference: {
             predefinedLayout: params.predefinedLayout || 'BLANK',
           },
