@@ -1,7 +1,8 @@
 const {google} = require('googleapis');
 
 class SlideFunctions {
-  constructor(auth, presentationId) {
+  constructor(auth, presentationId, debugMode = false) {
+    this.debugMode = debugMode;
     return (async () => {
       this.slidesService = google.slides({version: 'v1', auth});
 
@@ -9,7 +10,7 @@ class SlideFunctions {
       this.presentation = {
         presentationId: presentationId || this.createPresentation(),
       };
-      await this.scanSlides();
+      this.presentation = await this.scanSlides();
 
       return this;
     })();
@@ -21,8 +22,7 @@ class SlideFunctions {
         presentationId: this.presentation.presentationId,
       }, (err, res) => {
         if (err) return console.log('The API returned an error: ' + err);
-        this.presentation = res.data;
-        resolve('Done');
+        resolve(res.data);
       });
     });
   }
@@ -33,36 +33,37 @@ class SlideFunctions {
     }, (err, res) => {
       if (err) return console.log('The API returned an error: ' + err);
       this.presentation = res.data;
-      console.log(`Created presentation with ID: ${res.data.presentationId}`);
+      this.debugMode && console.log(`Created presentation with ID: ${res.data.presentationId}`);
     });
   }
 
   createSlide(params) {
-    let requests = [{
-      createSlide: {
-        insertionIndex: params.insertionIndex || '1',
-        slideLayoutReference: {
-          predefinedLayout: params.predefinedLayout || 'TITLE_AND_TWO_COLUMNS',
+    return new Promise((resolve, reject) => {
+      let requests = [{
+        createSlide: {
+          insertionIndex: params.insertionIndex || '1',
+          slideLayoutReference: {
+            predefinedLayout: params.predefinedLayout || 'TITLE_AND_BODY',
+          },
         },
-      },
-    }];
-      // If you wish to populate the slide with elements, add element create requests here,
-      // using the pageId.
+      }];
 
-    // Execute the request.
-    return this.slidesService.presentations.batchUpdate({
-      presentationId: this.presentation.presentationId,
-      resource: {
-        requests,
-      },
-    }, (err, res) => {
-      if (err) return console.log('The API returned an error: ' + err);
-      console.log(`Created slide with ID: ${res.data.replies[0].createSlide.objectId}`);
-      this.presentation = res.data;
+      return this.slidesService.presentations.batchUpdate({
+        presentationId: this.presentation.presentationId,
+        resource: {
+          requests,
+        },
+      }, async (err, res) => {
+        if (err) return console.log('The API returned an error: ' + err);
+        this.debugMode && console.log(`Created slide with ID: ${res.data.replies[0].createSlide.objectId}`);
+        // createSlide response doesn't return slidedeck model, therefore we must manually update model via scanSlides
+        this.presentation = await this.scanSlides();
+      });
     });
   }
 
-  createTextboxWithText(pageIndex) {
+  createTextboxWithText(params) {
+    const {pageIndex, text} = params;
     let elementId = 'MyTextBox_01';
     let pt350 = {
       magnitude: 350,
@@ -91,12 +92,12 @@ class SlideFunctions {
     // Insert text into the box, using the supplied element ID.
     {
       insertText: {
+        text,
         objectId: elementId,
         insertionIndex: 0,
-        text: 'New Box Text Inserted!',
       },
     }];
-      // Execute the request.
+    // Execute the request.
     this.slidesService.presentations.batchUpdate({
       presentationId: this.presentation.presentationId,
       resource: {requests},
@@ -104,12 +105,11 @@ class SlideFunctions {
       if (err) return console.log('The API returned an error: ' + err);
       this.presentation = res.data;
       let createShapeResponse = res.data.replies[0].createShape;
-      console.log(`Created textbox with ID: ${createShapeResponse.objectId}`);
+      this.debugMode && console.log(`Created textbox with ID: ${createShapeResponse.objectId}`);
     });
   }
 
   getPageIdFromPageIndex(pageIndex) {
-    //console.log(this.presentation);
     if (pageIndex < 1 || pageIndex > this.presentation.slides.length) {
       throw new PageIndexOutOfBoundsException(`Page ${pageIndex} is out of range `);
     }

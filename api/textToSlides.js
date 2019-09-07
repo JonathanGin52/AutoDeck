@@ -2,13 +2,36 @@ const SlideFunctions = require('./SlideFunctions');
 const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
+const inquirer = require('inquirer');
 
 const TOKEN_PATH = 'token.json';
 
 async function main(auth) {
   const slideFunctions = await new SlideFunctions(auth, '1EMoPRZLQvzkKSPrSIVVTY0bwf7of71eb1i47Adciqjw');
-  // slideFunctions.createSlide({});
-  slideFunctions.createTextboxWithText(2);
+  while (true) {
+    const {selection} = await inquirer.prompt({
+      type: 'list',
+      name: 'selection',
+      message: 'Select an option',
+      choices: [
+        'Add slide',
+        'Create text box',
+        'Quit',
+      ],
+    });
+    switch (selection) {
+    case 'Add slide':
+      slideFunctions.createSlide({});
+      break;
+    case 'Create text box':
+      slideFunctions.createTextboxWithText({pageIndex: 2, text: 'Hello world'});
+      break;
+    case 'Quit':
+      return;
+    default:
+      break;
+    }
+  }
 }
 
 fs.readFile('credentials.json', (err, content) => {

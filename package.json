@@ -10,6 +10,7 @@
     "googleapis": "^39.2.0",
     "history": "^4.9.0",
     "morgan": "^1.9.1",
+    "inquirer": "^7.0.0",
     "react": "^16.9.0",
     "react-audio-recorder": "^2.2.0",
     "react-dom": "^16.9.0",
