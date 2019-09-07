@@ -1,4 +1,5 @@
 const SlideFunctions = require('./SlideFunctions');
+const unsplash = require('./unsplash');
 const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
@@ -9,6 +10,7 @@ const TOKEN_PATH = 'token.json';
 async function main(auth) {
   const slideFunctions = await new SlideFunctions(auth, '1EMoPRZLQvzkKSPrSIVVTY0bwf7of71eb1i47Adciqjw');
   while (true) {
+    const imageCache = {};
     const {selection} = await inquirer.prompt({
       type: 'list',
       name: 'selection',
@@ -16,6 +18,7 @@ async function main(auth) {
       choices: [
         'Add slide',
         'Create text box',
+        'Add an image',
         'Quit',
       ],
     });
@@ -25,6 +28,18 @@ async function main(auth) {
       break;
     case 'Create text box':
       slideFunctions.createTextboxWithText({pageIndex: 2, text: 'Hello world'});
+      break;
+    case 'Add an image':
+      const query = 'laptop';
+      let images;
+      // Cache hit
+      if (imageCache.query) {
+        images = imageCache.query;
+      } else {
+        const response = await unsplash.get('/search/photos', { params: { query } });
+        images = response.data.results;
+        imageCache.query = images;
+      }
       break;
     case 'Quit':
       return;
