@@ -5,10 +5,10 @@ const {google} = require('googleapis');
 
 const TOKEN_PATH = 'token.json';
 
-function main(auth) {
-  const slideFunctions = new SlideFunctions(auth, '1EMoPRZLQvzkKSPrSIVVTY0bwf7of71eb1i47Adciqjw');
-  // slideFunctions.listSlides();
-  slideFunctions.createSlide({});
+async function main(auth) {
+  const slideFunctions = await new SlideFunctions(auth, '1EMoPRZLQvzkKSPrSIVVTY0bwf7of71eb1i47Adciqjw');
+  // slideFunctions.createSlide({});
+  slideFunctions.createTextboxWithText(2);
 }
 
 fs.readFile('credentials.json', (err, content) => {
