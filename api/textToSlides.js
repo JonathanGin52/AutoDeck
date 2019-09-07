@@ -30,16 +30,26 @@ async function main(auth) {
       slideFunctions.createTextboxWithText({pageIndex: 2, text: 'Hello world'});
       break;
     case 'Add an image':
-      const query = 'laptop';
+      const {query} = await inquirer.prompt({name: 'query'});
+
       let images;
       // Cache hit
-      if (imageCache.query) {
-        images = imageCache.query;
+      if (imageCache[query]) {
+        console.log('Cache hit!');
+        images = imageCache[query];
       } else {
+        console.log('Cache miss!');
+        images = imageCache[query];
         const response = await unsplash.get('/search/photos', { params: { query } });
         images = response.data.results;
-        imageCache.query = images;
+        imageCache[query] = images;
       }
+
+      slideFunctions.addImage({
+        imageUrl: images[0].urls.raw,
+        first_name: images[0].first_name,
+        last_name: images[0].last_name,
+      });
       break;
     case 'Quit':
       return;
@@ -103,4 +113,3 @@ function getNewToken(oAuth2Client, callback) {
     });
   });
 }
-

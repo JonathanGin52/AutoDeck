@@ -43,7 +43,7 @@ class SlideFunctions {
         createSlide: {
           insertionIndex: params.insertionIndex || '1',
           slideLayoutReference: {
-            predefinedLayout: params.predefinedLayout || 'TITLE_AND_BODY',
+            predefinedLayout: params.predefinedLayout || 'BLANK',
           },
         },
       }];
@@ -64,7 +64,8 @@ class SlideFunctions {
 
   createTextboxWithText(params) {
     const {pageIndex, text} = params;
-    let elementId = 'MyTextBox_01';
+
+    let elementId = genId(5);
     let pt350 = {
       magnitude: 350,
       unit: 'PT',
@@ -109,7 +110,85 @@ class SlideFunctions {
     });
   }
 
+  addImage(params) {
+    const {imageUrl, pageIndex, first_name, last_name} = params;
+    const pageObjectId = this.getPageIdFromPageIndex(pageIndex);
+    const objectId = genId(5);
+    const imageCreds = `Photo credits: ${first_name} ${last_name}`;
+
+    let emu4M = {
+      magnitude: 4200000,
+      unit: 'EMU',
+    };
+    let pt350 = {
+      magnitude: 350,
+      unit: 'PT',
+    };
+    let requests = [
+      {
+        createImage: {
+          url: imageUrl,
+          elementProperties: {
+            pageObjectId,
+            size: {
+              height: emu4M,
+              width: emu4M,
+            },
+            transform: {
+              scaleX: 1,
+              scaleY: 1,
+              translateX: 5000000,
+              translateY: 400000,
+              unit: 'EMU',
+            },
+          },
+        },
+      },
+      {
+        createShape: {
+          objectId,
+          shapeType: 'TEXT_BOX',
+          elementProperties: {
+            pageObjectId,
+            size: {
+              height: pt350,
+              width: pt350,
+            },
+            transform: {
+              scaleX: 1,
+              scaleY: 1,
+              translateX: 1000,
+              translateY: 500,
+              unit: 'PT',
+            },
+          },
+        },
+      },
+      {
+        insertText: {
+          text: imageCreds,
+          objectId,
+          insertionIndex: 0,
+        },
+      }
+    ];
+
+    this.slidesService.presentations.batchUpdate({
+      presentationId: this.presentation.presentationId,
+      resource: {requests},
+    }, async (err, res) => {
+      if (err) return console.log('The API returned an error: ' + err);
+      let createImageResponse = res.data.replies;
+      this.debugMode && console.log(`Created image with ID: ${createImageResponse[0].createImage.objectId}`);
+      this.presentation = await this.scanSlides();
+    });
+  }
+
   getPageIdFromPageIndex(pageIndex) {
+    if (!pageIndex) {
+      const length = this.presentation.slides.length;
+      return this.presentation.slides[length - 1].objectId;
+    }
     if (pageIndex < 1 || pageIndex > this.presentation.slides.length) {
       throw new PageIndexOutOfBoundsException(`Page ${pageIndex} is out of range `);
     }
@@ -118,5 +197,15 @@ class SlideFunctions {
 }
 
 class PageIndexOutOfBoundsException extends Error {}
+
+function genId(length) {
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
 
 module.exports = SlideFunctions;
