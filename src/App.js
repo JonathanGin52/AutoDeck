@@ -2,6 +2,14 @@ import React from 'react';
 import './App.css';
 
 class App extends React.Component {
+  constructor() {
+
+  }
+
+  callRecording() {
+    
+  }
+
   render() {
     return (
       <div id="home-page">
@@ -11,7 +19,7 @@ class App extends React.Component {
             <h3 className="mb-5" style={{color: "#eee", textShadow: "2px 2px 5px #111"}}>
               <em>Create pitch decks from your voice alone</em>
             </h3>
-            <a className="btn btn-primary btn-xl js-scroll-trigger" href="#about">Create Pitch Deck</a>
+            <a className="btn btn-primary btn-xl js-scroll-trigger" href="/deck-creator" onClick={this.callRecording()}>Create Pitch Deck</a>
           </div>
           <div className="overlay"></div>
         </header>
