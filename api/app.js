@@ -51,10 +51,4 @@ app.post('/api/record', (req, res) => {
   res.status(200);
 });
 
-//server
-const port = 8080;
-app.listen(port, function () {
-  console.log('Example app listening on http://localhost:'+port);
-});
-
 module.exports = app;
