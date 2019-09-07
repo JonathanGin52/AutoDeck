@@ -23,7 +23,6 @@
     "eject": "react-scripts eject",
     "lint": "eslint --ignore-path .gitignore ."
   },
-  "proxy": "http://localhost:3001",
   "eslintConfig": {
     "extends": "react-app",
     "rules": {

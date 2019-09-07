@@ -20,13 +20,13 @@ class DeckCreator extends React.Component {
     };
 
     recognition.onresult = function(event) {
+      console.log(event.results[0][0].transcript);
+      console.log(event.results[0][0]);
       if (event.results[0][0].confidence > 0.90) {
         console.log(event.results[0][0].transcript);
-        try {
-          axios.post('/api/record', {
-            transcript: event.results[0][0].transcript
-          })
-        } catch (err) {}
+        axios.post('/api/record', {
+          transcript: event.results[0][0].transcript
+        });
       }
     };
 
@@ -57,7 +57,7 @@ class DeckCreator extends React.Component {
           
         </div>
         <div id="live-speech">
-          <p>{this.state.}</p>
+          <p></p>
         </div>
       </div>
     );

@@ -44,11 +44,10 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname+'index.html'));
 });
 
-//init socket connection for real time text display
-app.post('/api/record', (req, res) => {
-  const transcript = req.params.transcript;
-  console.log(transcript);
-  res.status(200);
+//server
+const port = 8080;
+app.listen(port, function () {
+  console.log('Example app listening on http://localhost:'+port);
 });
 
 module.exports = app;
