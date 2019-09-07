@@ -5,11 +5,6 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
-    this.callRecording = this.callRecording.bind(this.callRecording);
-  }
-
-  callRecording() {
-    console.log("dwqdwq");
   }
 
   render() {
@@ -21,7 +16,7 @@ class App extends React.Component {
             <h3 className="mb-5" style={{color: "#eee", textShadow: "2px 2px 5px #111"}}>
               <em>Create pitch decks from your voice alone</em>
             </h3>
-            <a className="btn btn-primary btn-xl js-scroll-trigger" href="#/deck-creator" onClick={this.callRecording}>Create Pitch Deck</a>
+            <a className="btn btn-primary btn-xl js-scroll-trigger" href="#/deck-creator">Create Pitch Deck</a>
           </div>
           <div className="overlay"></div>
         </header>
