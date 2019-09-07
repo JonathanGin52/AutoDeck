@@ -5,31 +5,10 @@ const nlp_client = new language.LanguageServiceClient();
 var express = require('express');
 var router = express.Router();
 
-router.post('/', function(req, res, next) {
-
-	const encoding = 'LINEAR16';
-	const sampleRateHertz = 48000;
-	const languageCode = 'en-US';
-
-	const request = {
-		config: {
-			encoding: encoding,
-			sampleRateHertz: sampleRateHertz,
-			languageCode: languageCode,
-		},
-		interimResults: false,
-	};
-
-	const recognizeStream = s2t_client
-		.streamingRecognize(request)
-		.on('error', console.error)
-		.on('data', data =>
-			process.stdout.write(
-				data.results[0] && data.results[0].alternatives[0]
-					? `Transcription: ${data.results[0].alternatives[0].transcript}\n`
-					: `\n\nReached transcription time limit, press Ctrl+C\n`
-			)
-		);
+router.post('/api/record', (req, res, next) => {
+  const transcript = req.body.transcript;
+  console.log(transcript);
+  res.status(200);
 });
 
 router.post('/nlp/entity_sentiments', function(req, res, next) {
