@@ -12,8 +12,9 @@
     "react-scripts": "3.1.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start-react": "react-scripts start",
+    "start": "node api/app.js",
+    "build": "react-scripts build && cp -r build/* api/public",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint --ignore-path .gitignore ."
