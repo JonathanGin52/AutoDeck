@@ -1,11 +1,24 @@
 const language = require('@google-cloud/language');
 const nlp_client = new language.LanguageServiceClient();
+const fetch = require('node-fetch');
 var express = require('express');
 var router = express.Router();
 
 router.post('/api/record', (req, res, next) => {
   const transcript = req.body.transcript;
-  console.log(transcript);
+  fetch('http://localhost:8080/nlp/entity_sentiments', {
+		method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ text: transcript }),
+  }).then(r => {
+    return r.json();
+  }).then(r => {
+    // Todo logic for updating the slides
+    console.log(r);
+  });
   res.status(200);
 });
 
@@ -14,8 +27,7 @@ router.post('/nlp/entity_sentiments', function(req, res, next) {
 });
 
 function return_response(res, data) {
-  console.log(data);
-  res.json(data);
+  res.json(JSON.stringify(data));
 }
 
 function nlp_request(req, res) {
