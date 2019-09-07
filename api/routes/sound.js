@@ -5,7 +5,7 @@ var router = express.Router();
 
 router.post('/api/record', (req, res, next) => {
   const transcript = req.body.transcript;
-  console.log(transcript);
+  console.log(transcript); //mark
   res.status(200);
 });
 

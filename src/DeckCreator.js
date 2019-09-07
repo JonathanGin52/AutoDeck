@@ -16,34 +16,38 @@ class DeckCreator extends React.Component {
 
     this.state = {
       recognition: recognition,
-      transcript: '',
+      transcript: 'Start by saying something'
     };
-
-    recognition.onresult = function(event) {
-      console.log(event.results[0][0].transcript);
-      console.log(event.results[0][0]);
-      if (event.results[0][0].confidence > 0.90) {
-        console.log(event.results[0][0].transcript);
-        axios.post('/api/record', {
-          transcript: event.results[0][0].transcript
-        });
-      }
-    };
-
-    recognition.onend = function(event) {
-      recognition.start();
-    }
 
     this.toggleListen = this.toggleListen.bind(this)
     this.handleListen = this.handleListen.bind(this)
+
+    this.state.recognition.onresult = this.handleListen
+    
+    this.state.recognition.onend = function(event) {
+      recognition.start();
+    };
   }
 
   toggleListen() {
-    this.state.recognition.start();
+    recognition.start();
   }
   
-  handleListen(){
-    // handle speech recognition here 
+  handleListen(event) {
+    console.log(event.results[0][0].transcript);
+    console.log(event.results[0][0]);
+    if (event.results[0][0].confidence > 0.90) {
+      console.log(event.results[0][0].transcript);
+  
+      axios.post('/api/record', {
+        transcript: event.results[0][0].transcript
+      });
+    }
+    else if (event.results[0][0].confidence > 0.80) {
+      this.setState({
+        transcript: event.results[0][0].transcript
+      });
+    }
   }
 
   componentDidMount() {
@@ -57,7 +61,7 @@ class DeckCreator extends React.Component {
           
         </div>
         <div id="live-speech">
-          <p></p>
+          <p>{this.state.transcript}</p>
         </div>
       </div>
     );
