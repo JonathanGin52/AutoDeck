@@ -4,10 +4,7 @@ import './index.css';
 import App from './App';
 import DeckCreator from './DeckCreator';
 import * as serviceWorker from './serviceWorker';
-import { Route, Link, BrowserRouter as Router } from 'react-router-dom'
-import { createBrowserHistory as createHistory } from 'history'
-
-const history = createHistory()
+import { Route, BrowserRouter as Router } from 'react-router-dom'
 
 const routing = (
   <Router basename="#">

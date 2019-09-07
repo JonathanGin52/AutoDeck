@@ -46,7 +46,8 @@ app.get('/', (req, res) => {
 
 //init socket connection for real time text display
 app.post('/api/record', (req, res) => {
-  //do something here
+  const transcript = req.params.transcript;
+  console.log(transcript);
   res.status(200);
 });
 
