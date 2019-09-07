@@ -111,15 +111,11 @@ class SlideFunctions {
   }
 
   addImage(params) {
-    const {imageUrl, pageIndex, first_name, last_name} = params;
+    const {imageUrl, pageIndex, name, portfolioUrl} = params;
     const pageObjectId = this.getPageIdFromPageIndex(pageIndex);
     const objectId = genId(5);
-    const imageCreds = `Photo credits: ${first_name} ${last_name}`;
+    const imageCreds = `Captured by: ${name}`;
 
-    let emu4M = {
-      magnitude: 4200000,
-      unit: 'EMU',
-    };
     let pt350 = {
       magnitude: 350,
       unit: 'PT',
@@ -131,15 +127,15 @@ class SlideFunctions {
           elementProperties: {
             pageObjectId,
             size: {
-              height: emu4M,
-              width: emu4M,
+              height: pt350,
+              width: pt350,
             },
             transform: {
               scaleX: 1,
               scaleY: 1,
-              translateX: 5000000,
-              translateY: 400000,
-              unit: 'EMU',
+              translateX: 375,
+              translateY: 25,
+              unit: 'PT',
             },
           },
         },
@@ -157,8 +153,8 @@ class SlideFunctions {
             transform: {
               scaleX: 1,
               scaleY: 1,
-              translateX: 1000,
-              translateY: 500,
+              translateX: 425,
+              translateY: 370,
               unit: 'PT',
             },
           },
@@ -170,7 +166,38 @@ class SlideFunctions {
           objectId,
           insertionIndex: 0,
         },
-      }
+      },
+      {
+        updateTextStyle: {
+          objectId,
+          textRange: {
+            type: 'ALL',
+          },
+          style: {
+            italic: true,
+            fontSize: {
+              magnitude: 10,
+              unit: 'PT',
+            },
+          },
+          fields: 'fontSize,italic',
+        }
+      },
+      {
+        updateTextStyle: {
+          objectId,
+          textRange: {
+            startIndex: 13,
+            type: 'FROM_START_INDEX',
+          },
+          style: {
+            link: {
+              url: portfolioUrl,
+            },
+          },
+          fields: 'link',
+        },
+      },
     ];
 
     this.slidesService.presentations.batchUpdate({

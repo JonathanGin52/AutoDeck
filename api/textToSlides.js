@@ -27,7 +27,7 @@ async function main(auth) {
       slideFunctions.createSlide({});
       break;
     case 'Create text box':
-      slideFunctions.createTextboxWithText({pageIndex: 2, text: 'Hello world'});
+      slideFunctions.createTextboxWithText({text: 'Hello world'});
       break;
     case 'Add an image':
       const {query} = await inquirer.prompt({name: 'query'});
@@ -47,8 +47,8 @@ async function main(auth) {
 
       slideFunctions.addImage({
         imageUrl: images[0].urls.raw,
-        first_name: images[0].first_name,
-        last_name: images[0].last_name,
+        name: images[0].user.name,
+        portfolioUrl: images[0].user.links.html,
       });
       break;
     case 'Quit':
