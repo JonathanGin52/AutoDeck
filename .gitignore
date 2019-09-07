@@ -25,3 +25,6 @@ yarn-error.log*
 credentials.json
 token.json
 Autodeck-abf53c969b5a.json
+
+# production
+# /api/public
