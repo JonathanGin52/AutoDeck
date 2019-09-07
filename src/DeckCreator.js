@@ -5,7 +5,7 @@ class DeckCreator extends React.Component {
     return (
       <div style={{textAlign: "center"}}>
         <div id="google-slides">
-          s
+          
         </div>
         <div id="live-speech">
           <p></p>
