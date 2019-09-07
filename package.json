@@ -6,6 +6,7 @@
     "googleapis": "^39.2.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
+    "react-mic": "^12.4.1",
     "react-router": "^5.0.1",
     "react-router-dom": "^5.0.1",
     "react-scripts": "3.1.1"
@@ -17,6 +18,7 @@
     "eject": "react-scripts eject",
     "lint": "eslint --ignore-path .gitignore ."
   },
+  "proxy": "http://localhost:3001",
   "eslintConfig": {
     "extends": "react-app",
     "rules": {
