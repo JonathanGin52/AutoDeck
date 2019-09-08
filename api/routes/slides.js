@@ -26,7 +26,7 @@ router.post('/api/add_text', (req, res, next) => {
 router.post('/api/add_header', (req, res, next) => {
   Auth.create().then(auth => {
     let text = req.body.text;
-    auth.createHeader({text: text});
+    auth.createHeader({text});
     res.status(200).end();
   });
 });
@@ -34,7 +34,7 @@ router.post('/api/add_header', (req, res, next) => {
 router.post('/api/add_subheader', (req, res, next) => {
   Auth.create().then(auth => {
     let text = req.body.text;
-    auth.createSubheader({text: text});
+    auth.createSubheader({text});
     res.status(200).end();
   });
 });
