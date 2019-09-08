@@ -18,6 +18,7 @@ async function main(auth) {
       choices: [
         'Add slide',
         'Add text',
+        'Add header',
         'Add an image',
         'Quit',
       ],
@@ -29,6 +30,10 @@ async function main(auth) {
     case 'Add text':
       const {entity, text} = await inquirer.prompt([{name: 'entity'}, {name: 'text'}]);
       slideFunctions.upsertText({entity, text, delimiter: ' '});
+      break;
+    case 'Add header':
+      const {content} = await inquirer.prompt([{name: 'content'}]);
+      slideFunctions.createHeader({text: content});
       break;
     case 'Add an image':
       const {query} = await inquirer.prompt({name: 'query'});

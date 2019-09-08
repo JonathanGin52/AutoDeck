@@ -156,6 +156,53 @@ class SlideFunctions {
     });
   }
 
+  createHeader(params) {
+    const {pageIndex, text} = params;
+
+    let elementId = genId(5);
+    let pt350 = {
+      magnitude: 350,
+      unit: 'PT',
+    };
+    let requests = [{
+      createShape: {
+        objectId: elementId,
+        shapeType: 'TEXT_BOX',
+        elementProperties: {
+          pageObjectId: this.getPageIdFromPageIndex(pageIndex),
+          size: {
+            height: pt350,
+            width: pt350,
+          },
+          transform: {
+            scaleX: 1,
+            scaleY: 1,
+            translateX: 350,
+            translateY: 100,
+            unit: 'PT',
+          },
+        },
+      },
+    },
+    {
+      insertText: {
+        text,
+        objectId: elementId,
+        insertionIndex: 0,
+      },
+    }];
+
+    this.slidesService.presentations.batchUpdate({
+      presentationId: this.presentation.presentationId,
+      resource: {requests},
+    }, async (err, res) => {
+      if (err) return console.log('The API returned an error: ' + err);
+      let createShapeResponse = res.data.replies[0].createShape;
+      this.debugMode && console.log(`Created textbox with ID: ${createShapeResponse.objectId}`);
+      this.presentation = await this.scanSlides();
+    });
+  }
+
   addImage(params) {
     const {imageUrl, pageIndex, name, portfolioUrl} = params;
     const pageObjectId = this.getPageIdFromPageIndex(pageIndex);
