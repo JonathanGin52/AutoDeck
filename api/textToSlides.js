@@ -6,10 +6,14 @@ const {google} = require('googleapis');
 const inquirer = require('inquirer');
 
 const TOKEN_PATH = 'token.json';
+let slideFunctions;
+const imageCache = {};
 
 async function main(auth) {
-  const slideFunctions = await new SlideFunctions(auth, '1EMoPRZLQvzkKSPrSIVVTY0bwf7of71eb1i47Adciqjw');
-  const imageCache = {};
+  if (!slideFunctions) {
+    console.log('created slide function class');
+    slideFunctions = await new SlideFunctions(auth, '1EMoPRZLQvzkKSPrSIVVTY0bwf7of71eb1i47Adciqjw');
+  }
   while (true) {
     const {selection} = await inquirer.prompt({
       type: 'list',
@@ -40,21 +44,36 @@ async function main(auth) {
       const {query} = await inquirer.prompt({name: 'query'});
 
       let images;
+      let ids;
+      let index = 0;
       if (imageCache[query]) {
         console.log('Cache hit!');
         images = imageCache[query];
+        index = imageCache[query].index;
+        if (index === 10) index = 0;
+
+        ids = await slideFunctions.updateImage({
+          ids: images.ids,
+          imageUrl: images[index].urls.raw,
+          name: images[index].user.name,
+          portfolioUrl: images[index].user.links.html,
+        });
       } else {
         console.log('Cache miss!');
         const response = await unsplash.get('/search/photos', { params: { query } });
         images = response.data.results;
         imageCache[query] = images;
+
+        ids = await slideFunctions.addImage({
+          imageUrl: images[index].urls.raw,
+          name: images[index].user.name,
+          portfolioUrl: images[index].user.links.html,
+        });
       }
 
-      slideFunctions.addImage({
-        imageUrl: images[0].urls.raw,
-        name: images[0].user.name,
-        portfolioUrl: images[0].user.links.html,
-      });
+      imageCache[query].ids = ids;
+      imageCache[query].index = index + 1;
+      console.log(imageCache[query]);
       break;
     case 'Convert to bulleted list':
       const {objectId} = await inquirer.prompt({name: 'objectId'});
@@ -75,12 +94,6 @@ fs.readFile('credentials.json', (err, content) => {
   authorize(JSON.parse(content), main);
 });
 
-/**
- * Create an OAuth2 client with the given credentials, and then execute the
- * given callback function.
- * @param {Object} credentials The authorization client credentials.
- * @param {function} callback The callback to call with the authorized client.
- */
 function authorize(credentials, callback) {
   debugger;
   const {client_secret, client_id, redirect_uris} = credentials.web;

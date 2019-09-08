@@ -227,103 +227,209 @@ class SlideFunctions {
   }
 
   addImage(params) {
-    const {imageUrl, pageIndex, name, portfolioUrl} = params;
-    const pageObjectId = this.getPageIdFromPageIndex(pageIndex);
-    const objectId = genId(5);
-    const imageCreds = `Captured by: ${name}`;
+    return new Promise((resolve, reject) => {
+      const {imageUrl, pageIndex, name, portfolioUrl} = params;
+      const pageObjectId = this.getPageIdFromPageIndex(pageIndex);
+      const objectId = genId(5);
+      const imageCreds = `Captured by: ${name}`;
 
-    let pt350 = {
-      magnitude: 350,
-      unit: 'PT',
-    };
-    let requests = [
-      {
-        createImage: {
-          url: imageUrl,
-          elementProperties: {
-            pageObjectId,
-            size: {
-              height: pt350,
-              width: pt350,
-            },
-            transform: {
-              scaleX: 1,
-              scaleY: 1,
-              translateX: 375,
-              translateY: 25,
-              unit: 'PT',
-            },
-          },
-        },
-      },
-      {
-        createShape: {
-          objectId,
-          shapeType: 'TEXT_BOX',
-          elementProperties: {
-            pageObjectId,
-            size: {
-              height: pt350,
-              width: pt350,
-            },
-            transform: {
-              scaleX: 1,
-              scaleY: 1,
-              translateX: 425,
-              translateY: 370,
-              unit: 'PT',
+      let pt350 = {
+        magnitude: 350,
+        unit: 'PT',
+      };
+      let requests = [
+        {
+          createImage: {
+            url: imageUrl,
+            elementProperties: {
+              pageObjectId,
+              size: {
+                height: pt350,
+                width: pt350,
+              },
+              transform: {
+                scaleX: 1,
+                scaleY: 1,
+                translateX: 200,
+                translateY: 20,
+                unit: 'PT',
+              },
             },
           },
         },
-      },
-      {
-        insertText: {
-          text: imageCreds,
-          objectId,
-          insertionIndex: 0,
-        },
-      },
-      {
-        updateTextStyle: {
-          objectId,
-          textRange: {
-            type: 'ALL',
-          },
-          style: {
-            italic: true,
-            fontSize: {
-              magnitude: 10,
-              unit: 'PT',
+        {
+          createShape: {
+            objectId,
+            shapeType: 'TEXT_BOX',
+            elementProperties: {
+              pageObjectId,
+              size: {
+                height: pt350,
+                width: pt350,
+              },
+              transform: {
+                scaleX: 1,
+                scaleY: 1,
+                translateX: 275,
+                translateY: 370,
+                unit: 'PT',
+              },
             },
           },
-          fields: 'fontSize,italic',
-        }
-      },
-      {
-        updateTextStyle: {
-          objectId,
-          textRange: {
-            startIndex: 13,
-            type: 'FROM_START_INDEX',
-          },
-          style: {
-            link: {
-              url: portfolioUrl,
-            },
-          },
-          fields: 'link',
         },
-      },
-    ];
+        {
+          insertText: {
+            text: imageCreds,
+            objectId,
+            insertionIndex: 0,
+          },
+        },
+        {
+          updateTextStyle: {
+            objectId,
+            textRange: {
+              type: 'ALL',
+            },
+            style: {
+              italic: true,
+              fontSize: {
+                magnitude: 10,
+                unit: 'PT',
+              },
+            },
+            fields: 'fontSize,italic',
+          }
+        },
+        {
+          updateTextStyle: {
+            objectId,
+            textRange: {
+              startIndex: 13,
+              type: 'FROM_START_INDEX',
+            },
+            style: {
+              link: {
+                url: portfolioUrl,
+              },
+            },
+            fields: 'link',
+          },
+        },
+      ];
 
-    this.slidesService.presentations.batchUpdate({
-      presentationId: this.presentation.presentationId,
-      resource: {requests},
-    }, async (err, res) => {
-      if (err) return console.log('The API returned an error: ' + err);
-      let createImageResponse = res.data.replies;
-      this.debugMode && console.log(`Created image with ID: ${createImageResponse[0].createImage.objectId}`);
-      this.presentation = await this.scanSlides();
+      this.slidesService.presentations.batchUpdate({
+        presentationId: this.presentation.presentationId,
+        resource: {requests},
+      }, async (err, res) => {
+        if (err) return console.log('The API returned an error: ' + err);
+        let createImageResponse = res.data.replies;
+        this.debugMode && console.log(`Created image with ID: ${createImageResponse[0].createImage.objectId}`);
+        this.presentation = await this.scanSlides();
+        resolve({
+          imageId: createImageResponse[0].createImage.objectId,
+          textboxId: objectId,
+        });
+      });
+    });
+  }
+
+  updateImage(params) {
+    return new Promise((resolve, reject) => {
+      const {imageUrl, pageIndex, name, portfolioUrl, ids} = params;
+      const pageObjectId = this.getPageIdFromPageIndex(pageIndex);
+      const objectId = ids.textboxId;
+      const imageCreds = `Captured by: ${name}`;
+
+      let pt350 = {
+        magnitude: 350,
+        unit: 'PT',
+      };
+      let requests = [
+        {
+          createImage: {
+            url: imageUrl,
+            elementProperties: {
+              pageObjectId,
+              size: {
+                height: pt350,
+                width: pt350,
+              },
+              transform: {
+                scaleX: 1,
+                scaleY: 1,
+                translateX: 200,
+                translateY: 20,
+                unit: 'PT',
+              },
+            },
+          },
+        },
+        {
+          deleteObject: {
+            objectId: ids.imageId,
+          },
+        },
+        {
+          deleteText: {
+            objectId,
+            textRange: {
+              type: 'ALL',
+            },
+          },
+        },
+        {
+          insertText: {
+            text: imageCreds,
+            objectId,
+            insertionIndex: 0,
+          },
+        },
+        {
+          updateTextStyle: {
+            objectId,
+            textRange: {
+              type: 'ALL',
+            },
+            style: {
+              italic: true,
+              fontSize: {
+                magnitude: 10,
+                unit: 'PT',
+              },
+            },
+            fields: 'fontSize,italic',
+          }
+        },
+        {
+          updateTextStyle: {
+            objectId,
+            textRange: {
+              startIndex: 13,
+              type: 'FROM_START_INDEX',
+            },
+            style: {
+              link: {
+                url: portfolioUrl,
+              },
+            },
+            fields: 'link',
+          },
+        },
+      ];
+
+      this.slidesService.presentations.batchUpdate({
+        presentationId: this.presentation.presentationId,
+        resource: {requests},
+      }, async (err, res) => {
+        if (err) return console.log('The API returned an error: ' + err);
+        let createImageResponse = res.data.replies;
+        this.debugMode && console.log(`Created image with ID: ${createImageResponse[0].createImage.objectId}`);
+        this.presentation = await this.scanSlides();
+        resolve({
+          imageId: createImageResponse[0].createImage.objectId,
+          textboxId: objectId,
+        });
+      });
     });
   }
 
