@@ -17,7 +17,7 @@ async function main(auth) {
       message: 'Select an option',
       choices: [
         'Add slide',
-        'Create text box',
+        'Add text',
         'Add an image',
         'Quit',
       ],
@@ -26,8 +26,9 @@ async function main(auth) {
     case 'Add slide':
       slideFunctions.createSlide({});
       break;
-    case 'Create text box':
-      slideFunctions.createTextboxWithText({text: 'Hello world'});
+    case 'Add text':
+      const {entity, text} = await inquirer.prompt([{name: 'entity'}, {name: 'text'}]);
+      slideFunctions.upsertText({entity, text, delimiter: ' '});
       break;
     case 'Add an image':
       const {query} = await inquirer.prompt({name: 'query'});
