@@ -99,19 +99,23 @@ a:hover, a:focus, a:active {
 }
 
 #google-slides {
-  height: 91vh;
+  height: 100vh;
   background-color: #eee;
+  background-image: url("business.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 #live-speech {
   position: relative;
-  height: 9vh;
+  top: 47vh;
   display: inline-block;
   text-align: left;
 }
 
 #live-speech p {
   display: inline-block;
-  font-size: 3.0rem;
-  color: #333;
+  font-size: 3.5rem;
+  color: #eee;
+  text-shadow: 2px 2px 20px #111;
 }

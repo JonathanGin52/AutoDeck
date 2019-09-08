@@ -5,20 +5,20 @@ const SlideFunctions = require('./SlideFunctions');
 const TOKEN_PATH = './api/token.json';
 
 class Auth {
-  constructor() {
+  static create() {
     console.log('Current directory: ' + process.cwd());
-    this.slideFunctions = null;
-    fs.readFile('./api/credentials.json', (err, content) => {
-      if (err) return console.log('Error loading client secret file:', err);
-      // Authorize a client with credentials, then call the Google Slides API.
-      this.authorize(JSON.parse(content), async(auth) => {
-        return await new SlideFunctions(auth, '1EMoPRZLQvzkKSPrSIVVTY0bwf7of71eb1i47Adciqjw');
-      })
+    return new Promise((resolve, reject) => {
+      fs.readFile('./api/credentials.json', (err, content) => {
+        if (err) return console.log('Error loading client secret file:', err);
+        // Authorize a client with credentials, then call the Google Slides API.
+        this.authorize(JSON.parse(content), async(auth) => {
+          resolve(await new SlideFunctions(auth, '1EMoPRZLQvzkKSPrSIVVTY0bwf7of71eb1i47Adciqjw'));
+        });
+      });
     });
-    console.log('reached', this.slideFunctions);
   }
 
-  authorize(credentials, callback) {
+  static authorize(credentials, callback) {
     const {client_secret, client_id, redirect_uris} = credentials.web;
     const oAuth2Client = new google.auth.OAuth2(
       client_id, client_secret, redirect_uris[0]
@@ -29,13 +29,11 @@ class Auth {
     fs.readFile(TOKEN_PATH, (err, token) => {
       if (err) return this.getNewToken(oAuth2Client, callback);
       oAuth2Client.setCredentials(JSON.parse(token));
-      callback(oAuth2Client).then(auth => {
-        return auth;
-      });
+      return callback(oAuth2Client);
     });
   }
 
-  getNewToken(oAuth2Client, callback) {
+  static getNewToken(oAuth2Client, callback) {
     const authUrl = oAuth2Client.generateAuthUrl({
       access_type: 'offline',
       scope: [

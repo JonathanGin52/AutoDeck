@@ -34,8 +34,6 @@ class DeckCreator extends React.Component {
   }
   
   handleListen(event) {
-    console.log(event.results[0][0].transcript);
-    console.log(event.results[0][0]);
     if (event.results[0][0].confidence > 0.90) {
       console.log(event.results[0][0].transcript);
   
@@ -43,7 +41,7 @@ class DeckCreator extends React.Component {
         transcript: event.results[0][0].transcript
       });
     }
-    else if (event.results[0][0].confidence > 0.80) {
+    if (event.results[0][0].confidence > 0.85) {
       this.setState({
         transcript: event.results[0][0].transcript
       });
@@ -58,10 +56,9 @@ class DeckCreator extends React.Component {
     return (
       <div style={{textAlign: "center"}}>
         <div id="google-slides">
-          
-        </div>
-        <div id="live-speech">
-          <p>{this.state.transcript}</p>
+          <div id="live-speech">
+            <p>{this.state.transcript}</p>
+          </div>
         </div>
       </div>
     );
