@@ -16,14 +16,15 @@ class DeckCreator extends React.Component {
 
     this.state = {
       recognition: recognition,
-      transcript: 'Start by saying something'
+      transcript: 'Start by saying something',
+      count: 0,
     };
 
     this.toggleListen = this.toggleListen.bind(this)
     this.handleListen = this.handleListen.bind(this)
 
     this.state.recognition.onresult = this.handleListen
-    
+
     this.state.recognition.onend = function(event) {
       recognition.start();
     };
@@ -32,14 +33,22 @@ class DeckCreator extends React.Component {
   toggleListen() {
     recognition.start();
   }
-  
+
   handleListen(event) {
     if (event.results[0][0].confidence > 0.90) {
       console.log(event.results[0][0].transcript);
-  
+
       axios.post('/api/record', {
         transcript: event.results[0][0].transcript
       });
+      if (this.state.count === 3) {
+        window.location.reload();
+        this.setState({count: 0});
+      } else {
+        this.setState((oldState) => {
+          return {count: oldState.count + 1};
+        });
+      }
     }
     if (event.results[0][0].confidence > 0.85) {
       this.setState({
