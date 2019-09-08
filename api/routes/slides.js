@@ -29,7 +29,8 @@ router.post('/api/add_header', async(req, res, next) => {
     slideFunctions = await Auth.create();
   }
   let text = req.body.text;
-  slideFunctions.createHeader({text});
+  let isSubheading = req.body.isSubheading;
+  slideFunctions.createHeader({text, isSubheading});
   res.status(200).end();
 });
 

@@ -172,13 +172,16 @@ class SlideFunctions {
           pageObjectId: this.getPageIdFromPageIndex(pageIndex),
           size: {
             height: pt350,
-            width: pt350,
+            width: {
+              magnitude: 600,
+              unit: 'PT',
+            },
           },
           transform: {
             scaleX: 1,
             scaleY: 1,
-            translateX: 180,
-            translateY: isSubheading ? 35 : 15,
+            translateX: 70,
+            translateY: isSubheading ? 65 : 15,
             unit: 'PT',
           },
         },
@@ -197,7 +200,7 @@ class SlideFunctions {
         style: {
           bold: !isSubheading,
           fontSize: {
-            magnitude: isSubheading ? 44 : 52,
+            magnitude: isSubheading ? 24 : 52,
             unit: 'PT',
           },
         },

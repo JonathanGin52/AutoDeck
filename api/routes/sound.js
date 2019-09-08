@@ -118,7 +118,7 @@ function authors(str, entity_sentiments) {
 }
 
 function title(str, entity_sentiments) {
-  let titles = ['Enter title'];
+  let titles = [];
   let entities = entity_sentiments.entities;
   try {
     for (let i = 0; i < entities.length; i++) {
@@ -135,24 +135,24 @@ function title(str, entity_sentiments) {
     body: JSON.stringify({text: titles[titles.length-1]}),
   });
   console.log('TITLE: ' + titles[titles.length-1]); //call slides api
-  if (titles.length > 1) {
+  if (titles.length >= 1) {
     return 'TITLE';
   }
   return 'AUTHORS';
 }
 
 function subtitle(transcript, str) {
-  fetch('http://localhost:8080/slides/api/add_subheader', {
+  fetch('http://localhost:8080/slides/api/add_header', {
     method: 'POST',
     headers: defaultHeaders,
-    body: JSON.stringify({text: transcript.charAt(0).toUpperCase() + transcript.slice(1)}),
+    body: JSON.stringify({text: transcript.charAt(0).toUpperCase() + transcript.slice(1), isSubheading: true }),
   });
   console.log('SUBTITLE: '+ str.charAt(0).toUpperCase() + str.substring(1)); //call slides api
   return 'OPEN';
 }
 
 function heading(transcript) {
-  fetch('http://localhost:8080/slides/api/add_header', {
+  fetch('http://localhost:8080/slides/api/add_subheader', {
     method: 'POST',
     headers: defaultHeaders,
     body: JSON.stringify({text: transcript.charAt(0).toUpperCase() + transcript.slice(1)}),
@@ -170,6 +170,15 @@ function conclude(transcript) {
 }
 
 function para(transcript) {
+  fetch('http://localhost:8080/slides/api/add_text', {
+    method: 'POST',
+    headers: defaultHeaders,
+    body: JSON.stringify({
+      entity: `${base}${count}`,
+      text: transcript.charAt(0).toUpperCase() + transcript.slice(1) + '.',
+      delimiter: ' ',
+    }),
+  });
   console.log('PARA: ' + transcript.charAt(0).toUpperCase() + transcript.substring(1)); //call slides api
   return 'PARA';
 }
