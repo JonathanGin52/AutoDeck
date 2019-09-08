@@ -9,8 +9,8 @@ const TOKEN_PATH = 'token.json';
 
 async function main(auth) {
   const slideFunctions = await new SlideFunctions(auth, '1EMoPRZLQvzkKSPrSIVVTY0bwf7of71eb1i47Adciqjw');
+  const imageCache = {};
   while (true) {
-    const imageCache = {};
     const {selection} = await inquirer.prompt({
       type: 'list',
       name: 'selection',
@@ -39,13 +39,11 @@ async function main(auth) {
       const {query} = await inquirer.prompt({name: 'query'});
 
       let images;
-      // Cache hit
       if (imageCache[query]) {
         console.log('Cache hit!');
         images = imageCache[query];
       } else {
         console.log('Cache miss!');
-        images = imageCache[query];
         const response = await unsplash.get('/search/photos', { params: { query } });
         images = response.data.results;
         imageCache[query] = images;
