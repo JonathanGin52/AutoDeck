@@ -204,7 +204,7 @@ function image(transcript, entity_sentiments) {
   if (transcript.toLowerCase().includes('another picture')) {
     query = imageQueries[imageQueries.length - 1];
   } else {
-    query = entity_sentiments.entities[0].name;
+    query = entity_sentiments.entities[entity_sentiments.entities.length-1].name;
     imageQueries.push(query);
   }
   fetch('http://localhost:8080/slides/api/add_image', {
@@ -212,7 +212,7 @@ function image(transcript, entity_sentiments) {
     headers: defaultHeaders,
     body: JSON.stringify({query}),
   });
-  console.log('IMAGE: ' + entity_sentiments.entities[0].name); //call slides api
+  console.log('IMAGE: ' + query); //call slides api
   return 'OPEN';
 }
 
