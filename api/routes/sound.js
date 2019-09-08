@@ -53,7 +53,11 @@ function three() {
 
 function four(transcript) {
   if (firstSentence) {
-    SlideFunctions.createTextboxWithText({text: transcript.charAt(0).toUpperCase() + transcript.slice(1)});
+    fetch('http://localhost:8080/slides/api/add_header', {
+      method: 'POST',
+      headers: defaultHeaders,
+      body: JSON.stringify({text: transcript.charAt(0).toUpperCase() + transcript.slice(1)}),
+    });
     firstSentence = false;
   } else {
     five(transcript);
