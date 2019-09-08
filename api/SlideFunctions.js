@@ -177,8 +177,8 @@ class SlideFunctions {
           transform: {
             scaleX: 1,
             scaleY: 1,
-            translateX: 350,
-            translateY: 100,
+            translateX: 180,
+            translateY: 15,
             unit: 'PT',
           },
         },
@@ -189,6 +189,43 @@ class SlideFunctions {
         text,
         objectId: elementId,
         insertionIndex: 0,
+      },
+    },
+    {
+      updateTextStyle: {
+        objectId: elementId,
+        style: {
+          bold: true,
+          fontSize: {
+            magnitude: 52,
+            unit: 'PT',
+          },
+        },
+        textRange: {
+          type: 'ALL',
+        },
+        fields: 'bold,fontSize',
+      },
+    },
+    {
+      updateShapeProperties: {
+        objectId: elementId,
+        shapeProperties: {
+          contentAlignment: 'MIDDLE',
+        },
+        fields: 'contentAlignment',
+      },
+    },
+    {
+      updateParagraphStyle: {
+        objectId: elementId,
+        style: {
+          alignment: 'CENTER',
+        },
+        textRange: {
+          type: 'ALL',
+        },
+        fields: 'alignment',
       },
     }];
 

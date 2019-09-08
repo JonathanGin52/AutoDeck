@@ -38,7 +38,7 @@ async function main(auth) {
       break;
     case 'Add header':
       const {content} = await inquirer.prompt([{name: 'content'}]);
-      slideFunctions.createHeader({text: content});
+      slideFunctions.createHeader({text: content, pageIndex: 1});
       break;
     case 'Add an image':
       const {query} = await inquirer.prompt({name: 'query'});
