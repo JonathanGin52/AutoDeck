@@ -13,6 +13,7 @@ var express = require('express');
 var router = express.Router();
 
 var lastStep = "NONE";
+var base = "DOGGO";
 
 router.post('/api/record', (req, res, next) => {
   var transcript = req.body.transcript;
@@ -171,11 +172,21 @@ function para(transcript) {
 }
 
 function bullet(transcript) {
+  fetch('http://localhost:8080/slides/api/add_text', {
+    method: 'POST',
+    headers: defaultHeaders,
+    body: JSON.stringify({ entity: base+count++, text: '-' + transcript.charAt(0).toUpperCase() + transcript.slice(1)}),
+  });
   console.log("BULLET: " + transcript.charAt(0).toUpperCase() + transcript.substring(1)); //call slides api
   return "PARA";
 }
 
 function image(transcript, entity_sentiments) {
+  fetch('http://localhost:8080/slides/api/add_image', {
+    method: 'POST',
+    headers: defaultHeaders,
+    body: JSON.stringify({ query: entity_sentiments.entities[0].name }),
+  });
   console.log("IMAGE: " + entity_sentiments.entities[0].name); //call slides api
   return "OPEN";
 }

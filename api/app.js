@@ -9,8 +9,7 @@ var slidesRouter = require('./routes/slides');
 
 var app = express();
 
-firstSentence = true;
-subTitle = true;
+count = 0;
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
