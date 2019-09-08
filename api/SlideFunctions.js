@@ -240,6 +240,70 @@ class SlideFunctions {
     });
   }
 
+  createSubheader(params) {
+    const {pageIndex, text} = params;
+
+    let elementId = genId(5);
+    let requests = [{
+      createShape: {
+        objectId: elementId,
+        shapeType: 'TEXT_BOX',
+        elementProperties: {
+          pageObjectId: this.getPageIdFromPageIndex(pageIndex),
+          size: {
+            height: {
+              magnitude: 40,
+              unit: 'PT',
+            },
+            width: {
+              magnitude: 650,
+              unit: 'PT',
+            },
+          },
+          transform: {
+            scaleX: 1,
+            scaleY: 1,
+            translateX: 35,
+            translateY: 30,
+            unit: 'PT',
+          },
+        },
+      },
+    },
+    {
+      insertText: {
+        text,
+        objectId: elementId,
+        insertionIndex: 0,
+      },
+    },
+    {
+      updateTextStyle: {
+        objectId: elementId,
+        style: {
+          fontSize: {
+            magnitude: 28,
+            unit: 'PT',
+          },
+        },
+        textRange: {
+          type: 'ALL',
+        },
+        fields: 'fontSize',
+      },
+    }];
+
+    this.slidesService.presentations.batchUpdate({
+      presentationId: this.presentation.presentationId,
+      resource: {requests},
+    }, async (err, res) => {
+      if (err) return console.log('The API returned an error: ' + err);
+      let createShapeResponse = res.data.replies[0].createShape;
+      this.debugMode && console.log(`Created textbox with ID: ${createShapeResponse.objectId}`);
+      this.presentation = await this.scanSlides();
+    });
+  }
+
   createBulletedList(params) {
     const {objectId} = params;
 

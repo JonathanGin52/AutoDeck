@@ -23,6 +23,7 @@ async function main(auth) {
         'Add slide',
         'Add text',
         'Add header',
+        'Add subheader',
         'Add an image',
         'Convert to bulleted list',
         'Quit',
@@ -39,6 +40,10 @@ async function main(auth) {
     case 'Add header':
       const {content} = await inquirer.prompt([{name: 'content'}]);
       slideFunctions.createHeader({text: content, pageIndex: 1});
+      break;
+    case 'Add subheader':
+      const {subheader} = await inquirer.prompt([{name: 'subheader'}]);
+      slideFunctions.createSubheader({text: subheader});
       break;
     case 'Add an image':
       const {query} = await inquirer.prompt({name: 'query'});
