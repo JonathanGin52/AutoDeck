@@ -5,8 +5,12 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var soundRouter = require('./routes/sound');
+var slidesRouter = require('./routes/slides');
 
 var app = express();
+
+firstSentence = true;
+subTitle = true;
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -20,6 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
 app.use('/', soundRouter);
+app.use('/slides', slidesRouter);
 
 // static
 app.use(express.static('public'));

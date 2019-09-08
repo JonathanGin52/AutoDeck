@@ -1,7 +1,14 @@
 const language = require('@google-cloud/language');
 const NLPClient = new language.LanguageServiceClient();
 const fetch = require('node-fetch');
-const SlideFunctions = require('../SlideFunctions');
+const pictureMatches = ['picture of', 'image of', 'depiction of', 'pic of'];
+const bulletMatches = ['firstly', 'secondly', 'thirdly', 'fourthly', 'finally', 'first', 'second', 'third'];
+const unsplash = require('../unsplash');
+const fs = require('fs');
+const defaultHeaders = {
+  'Accept': 'application/json',
+  'Content-Type': 'application/json'
+};
 var express = require('express');
 var router = express.Router();
 
