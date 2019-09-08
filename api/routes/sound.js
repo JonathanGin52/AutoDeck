@@ -30,6 +30,16 @@ router.post('/api/record', (req, res, next) => {
 
     // call api
     lastStep = 'OPEN';
+  } else if (transcript.toLowerCase().includes('picture of') || transcript.toLowerCase().includes('another picture')) { //add picture
+    fetch('http://localhost:8080/nlp/entity_sentiments', {
+      method: 'POST',
+      headers: defaultHeaders,
+      body: JSON.stringify({ text: transcript }),
+    }).then(r => {
+      r.json().then(resp => {
+        image(transcript, JSON.parse(resp), transcript.toLowerCase().includes('picture of') ? 'picture of' : 'another picture');
+      })
+    });
   } else if (lastStep === 'NONE' || lastStep === 'AUTHORS' || lastStep === 'TITLE') {
     fetch('http://localhost:8080/nlp/entity_sentiments', {
       method: 'POST',
@@ -64,8 +74,6 @@ router.post('/api/record', (req, res, next) => {
       transcript.toLowerCase().includes('thirdly')  ||
       transcript.toLowerCase().includes('lastly')) {
       lastStep = bullet(transcript);
-    } else if (transcript.toLowerCase().includes('picture of') || transcript.toLowerCase().includes('another picture')) { //add picture
-      lastStep = image(transcript);
     } else {
       lastStep = 'OPEN'; //back to open state
     }
@@ -199,20 +207,34 @@ function bullet(transcript) {
   return 'PARA';
 }
 
-function image(transcript, entity_sentiments) {
+function image(transcript, resp, phrase) {
   let query;
-  if (transcript.toLowerCase().includes('another picture')) {
+  if (phrase === 'another picture') {
     query = imageQueries[imageQueries.length - 1];
   } else {
-    query = entity_sentiments.entities[entity_sentiments.entities.length-1].name;
+    query = resp.entities[resp.entities.length - 1].name;
     imageQueries.push(query);
   }
-  fetch('http://localhost:8080/slides/api/add_image', {
-    method: 'POST',
-    headers: defaultHeaders,
-    body: JSON.stringify({query}),
-  });
-  console.log('IMAGE: ' + query); //call slides api
+  let found = null;
+  let currMin = null;
+  let index = phrase.indexOf('picture');
+  if (resp.entities) {
+    for (let i = 0; i < resp.entities.length; i++) {
+      for (let j = 0; j < resp.entities[i].mentions.length; j++) {
+        if ((!currMin || Math.abs(index - resp.entities[i].mentions[j].text.beginOffset) < currMin) && !phrase.includes(resp.entities[i].mentions[j].text.content.toLowerCase())) {
+          currMin = resp.entities[i].mentions[j].text.beginOffset;
+          found = resp.entities[i].mentions[j].text.content;
+        }
+      }
+    }
+  }
+  if (found) {
+    fetch('http://localhost:8080/slides/api/add_image', {
+      method: 'POST',
+      headers: defaultHeaders,
+      body: JSON.stringify({query: found}),
+    });
+  }
   return 'OPEN';
 }
 
