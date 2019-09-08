@@ -12,12 +12,14 @@ var router = express.Router();
 
 var lastStep = 'NONE';
 var base = 'DOGGO';
+let count = 0;
 
 router.post('/api/record', (req, res, next) => {
   var transcript = req.body.transcript;
 
   // Creating new slide
   if (transcript.toLowerCase() === 'next slide' || transcript.toLowerCase() === 'new slide') {
+    count++;
     console.log('NEW SLIDE');
 
     fetch('http://localhost:8080/slides/api/add_slide', {
@@ -177,7 +179,7 @@ function bullet(transcript) {
     method: 'POST',
     headers: defaultHeaders,
     body: JSON.stringify({
-      entity: base,
+      entity: `${base}${count}`,
       text: transcript.charAt(0).toUpperCase() + transcript.slice(1),
       bulletPreset: 'NUMBERED_DIGIT_ALPHA_ROMAN',
       delimiter: '\n',
