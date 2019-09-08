@@ -1,7 +1,14 @@
 const language = require('@google-cloud/language');
 const NLPClient = new language.LanguageServiceClient();
 const fetch = require('node-fetch');
-const SlideFunctions = require('../SlideFunctions');
+const pictureMatches = ['picture of', 'image of', 'depiction of', 'pic of'];
+const bulletMatches = ['firstly', 'secondly', 'thirdly', 'fourthly', 'finally', 'first', 'second', 'third'];
+const unsplash = require('../unsplash');
+const fs = require('fs');
+const defaultHeaders = {
+  'Accept': 'application/json',
+  'Content-Type': 'application/json'
+};
 var express = require('express');
 var router = express.Router();
 
@@ -9,34 +16,93 @@ router.post('/api/record', (req, res, next) => {
   const transcript = req.body.transcript;
   fetch('http://localhost:8080/nlp/entity_sentiments', {
     method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    },
+    headers: defaultHeaders,
     body: JSON.stringify({ text: transcript }),
   }).then(r => {
     r.json().then(resp => {
     // Todo logic for updating the slides
     console.log(resp);
-    if (transcript.toLowerCase() == 'next slide') {
-      SlideFunctions.createSlide({});
+    
+    if (transcript.includes('next slide')) {
+      fetch('http://localhost:8080/slides/api/add_slide', {
+        method: 'POST',
+        headers: defaultHeaders,
+      });
+      firstSentence = true;
+      subTitle = true;
+      return;
+    }
+    let phrase = pictureMatches.find(element => transcript.includes(element))
+    if (transcript.includes("conclusion")) {
+    } else if (phrase) {
+      image(transcript, JSON.parse(resp), phrase.toLowerCase());
+    } else {
+      four(transcript);
     }
   })});
 });
 
-function authors() {}
+function authors() {
+}
 
-function two() {}
+function two() {
+}
 
-function three() {}
+function three() {
+}
 
-function four() {}
+function four(transcript) {
+  if (firstSentence) {
+    SlideFunctions.createTextboxWithText({text: transcript.charAt(0).toUpperCase() + transcript.slice(1)});
+    firstSentence = false;
+  } else {
+    five(transcript);
+  }
+}
 
-function five() {]
+function five(transcript) {
+  if (subTitle) {
+    SlideFunctions.createTextboxWithText({text: transcript.charAt(0).toUpperCase() + transcript.slice(1)});
+    subTitle = false;
+  } else {
+    six(transcript);
+  }
+}
 
-function six() {}
+function six(transcript) {
+  let phrase = bulletMatches.find(element => transcript.includes(element));
+  if (phrase) {
+    SlideFunctions.upsertText({ entity, text: transcript.replace('phrase', '').charAt(0).toUpperCase() + transcript.slice(1), delimiter: '\n'});
+  }
+}
 
-function image() {}
+async function image(transcript, resp, phrase) {
+  let index = transcript.indexOf(phrase) + phrase.length;
+  let found = null;
+  let currMin = null;
+  if (resp.entities) {
+    for (let i = 0; i < resp.entities.length; i++) {
+      for (let j = 0; j < resp.entities[i].mentions.length; j++) {
+        if ((!currMin ||
+            Math.abs(index - resp.entities[i].mentions[j].text.beginOffset) < currMin) &&
+            !phrase.includes(resp.entities[i].mentions[j].text.content.toLowerCase())) {
+          currMin = resp.entities[i].mentions[j].text.beginOffset;
+          found = resp.entities[i].mentions[j].text.content;
+        }
+      }
+    }
+  }
+  console.log(found);
+  if (found) {
+    const response = await unsplash.get('/search/photos', { params: { query: found } });
+    let images = response.data.results;
+    SlideFunctions.addImage({
+      imageUrl: images[0].urls.raw,
+      name: images[0].user.name,
+      portfolioUrl: images[0].user.links.html,
+    });
+  }
+}
 
 // ========================================
 // NLP stuff
