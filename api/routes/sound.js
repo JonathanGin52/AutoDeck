@@ -13,6 +13,7 @@ var router = express.Router();
 var lastStep = 'NONE';
 var base = 'DOGGO';
 let count = 0;
+const imageQueries = [];
 
 router.post('/api/record', (req, res, next) => {
   var transcript = req.body.transcript;
@@ -63,8 +64,8 @@ router.post('/api/record', (req, res, next) => {
       transcript.toLowerCase().includes('thirdly')  ||
       transcript.toLowerCase().includes('lastly')) {
       lastStep = bullet(transcript);
-    } else if (transcript.toLowerCase().includes('picture of')) { //add picture
-      lastStep = image(transcript, JSON.parse(resp));
+    } else if (transcript.toLowerCase().includes('picture of') || transcript.toLowerCase().includes('another picture')) { //add picture
+      lastStep = image(transcript);
     } else {
       lastStep = 'OPEN'; //back to open state
     }
@@ -199,10 +200,17 @@ function bullet(transcript) {
 }
 
 function image(transcript, entity_sentiments) {
+  let query;
+  if (transcript.toLowerCase().includes('another picture')) {
+    query = imageQueries[imageQueries.length - 1];
+  } else {
+    query = entity_sentiments.entities[0].name;
+    imageQueries.push(query);
+  }
   fetch('http://localhost:8080/slides/api/add_image', {
     method: 'POST',
     headers: defaultHeaders,
-    body: JSON.stringify({ query: entity_sentiments.entities[0].name }),
+    body: JSON.stringify({query}),
   });
   console.log('IMAGE: ' + entity_sentiments.entities[0].name); //call slides api
   return 'OPEN';
