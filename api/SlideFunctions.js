@@ -396,13 +396,14 @@ class SlideFunctions {
               type: 'ALL',
             },
             style: {
+              bold: true,
               italic: true,
               fontSize: {
                 magnitude: 10,
                 unit: 'PT',
               },
             },
-            fields: 'fontSize,italic',
+            fields: 'fontSize,italic,bold',
           }
         },
         {
