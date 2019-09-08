@@ -69,7 +69,7 @@ class SlideFunctions {
 
     console.log(this.entityList);
     if (newEntity) {
-      console.log('test');
+      // await this.createSlide({});
       await this.createTextbox(params);
     }
     await this.appendText(params);
@@ -199,6 +199,29 @@ class SlideFunctions {
       if (err) return console.log('The API returned an error: ' + err);
       let createShapeResponse = res.data.replies[0].createShape;
       this.debugMode && console.log(`Created textbox with ID: ${createShapeResponse.objectId}`);
+      this.presentation = await this.scanSlides();
+    });
+  }
+
+  createBulletedList(params) {
+    const {objectId} = params;
+
+    let requests = [
+      {
+        createParagraphBullets: {
+          objectId,
+          textRange: {
+            type: 'ALL',
+          },
+        }
+      }
+    ];
+
+    this.slidesService.presentations.batchUpdate({
+      presentationId: this.presentation.presentationId,
+      resource: {requests},
+    }, async (err, res) => {
+      if (err) return console.log('The API returned an error: ' + err);
       this.presentation = await this.scanSlides();
     });
   }

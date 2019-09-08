@@ -20,6 +20,7 @@ async function main(auth) {
         'Add text',
         'Add header',
         'Add an image',
+        'Convert to bulleted list',
         'Quit',
       ],
     });
@@ -29,7 +30,7 @@ async function main(auth) {
       break;
     case 'Add text':
       const {entity, text} = await inquirer.prompt([{name: 'entity'}, {name: 'text'}]);
-      slideFunctions.upsertText({entity, text, delimiter: ' '});
+      slideFunctions.upsertText({entity, text, delimiter: '\n'});
       break;
     case 'Add header':
       const {content} = await inquirer.prompt([{name: 'content'}]);
@@ -55,9 +56,14 @@ async function main(auth) {
         portfolioUrl: images[0].user.links.html,
       });
       break;
+    case 'Convert to bulleted list':
+      const {objectId} = await inquirer.prompt({name: 'objectId'});
+      slideFunctions.createBulletedList({objectId});
+      break;
     case 'Quit':
       return;
     default:
+      console.log(`${selection} is not a valid option`);
       break;
     }
   }
