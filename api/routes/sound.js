@@ -30,10 +30,7 @@ router.post('/api/record', (req, res, next) => {
   } else if (lastStep === 'NONE' || lastStep === 'AUTHORS' || lastStep === 'TITLE') {
     fetch('http://localhost:8080/nlp/entity_sentiments', {
       method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
+      headers: defaultHeaders,
       body: JSON.stringify({ text: transcript }),
     }).then(r => {
       r.json().then(resp => {
@@ -41,19 +38,21 @@ router.post('/api/record', (req, res, next) => {
         console.log('Transcript: ' + transcript);
 
         // Switch statement
-        if (lastStep === 'NONE')
+        if (lastStep === 'NONE') {
           lastStep = authors(transcript, JSON.parse(resp));
-        else if (lastStep === 'AUTHORS')
+        } else if (lastStep === 'AUTHORS') {
           lastStep = title(transcript, JSON.parse(resp));
-        else if (lastStep === 'TITLE')
+        } else if (lastStep === 'TITLE') {
           lastStep = subtitle(transcript, JSON.parse(resp));
-      })
+        }
+      });
     });
   } else if (lastStep === 'OPEN') { //open state for either new page or end of slideshow
-    if (transcript.toLowerCase().includes('conclusion') || transcript.toLowerCase().includes('all'))
+    if (transcript.toLowerCase().includes('conclusion') || transcript.toLowerCase().includes('all')) {
       lastStep = conclude(transcript); //ending
-    else
+    } else {
       lastStep = heading(transcript);
+    }
   } else if (lastStep === 'HEADING') { //create paragraph
     lastStep = para(transcript);
   } else if (lastStep === 'PARA') {
@@ -159,16 +158,30 @@ function heading(transcript) {
   return 'HEADING';
 }
 
+function conclude(transcript) {
+  fetch('http://localhost:8080/slides/api/add_header', {
+    method: 'POST',
+    headers: defaultHeaders,
+    body: JSON.stringify({text: 'Thank you'}),
+  });
+  return 'CONCLUDE';
+}
+
 function para(transcript) {
   console.log('PARA: ' + transcript.charAt(0).toUpperCase() + transcript.substring(1)); //call slides api
   return 'PARA';
 }
 
 function bullet(transcript) {
-  fetch('http://localhost:8080/slides/api/add_text', {
+  fetch('http://localhost:8080/slides/api/bullet_list', {
     method: 'POST',
     headers: defaultHeaders,
-    body: JSON.stringify({ entity: base + count++, text: '-' + transcript.charAt(0).toUpperCase() + transcript.slice(1)}),
+    body: JSON.stringify({
+      entity: base,
+      text: transcript.charAt(0).toUpperCase() + transcript.slice(1),
+      bulletPreset: 'NUMBERED_DIGIT_ALPHA_ROMAN',
+      delimiter: '\n',
+    }),
   });
   console.log('BULLET: ' + transcript.charAt(0).toUpperCase() + transcript.substring(1)); //call slides api
   return 'PARA';

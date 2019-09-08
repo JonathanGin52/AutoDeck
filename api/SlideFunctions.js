@@ -77,7 +77,7 @@ class SlideFunctions {
     if (newEntity) {
       this.entityList[entity] = text;
     } else {
-      this.entityList[entity] += `${delimiter}${text}`;
+      this.entityList[entity] += `${delimiter || '\n'}${text}`;
     }
   }
 
@@ -129,9 +129,9 @@ class SlideFunctions {
   appendText(params) {
     return new Promise((resolve, reject) => {
       const {entity, text} = params;
-      let delimiter = params.delimiter;
+      let delimiter = params.delimiter || '\n';
       let insertionIndex = 0;
-      if (this.entityList[entity]) {
+      if (this.entityList[entity] && this.entityList[entity].length !== 0) {
         insertionIndex = this.entityList[entity].length;
       } else {
         delimiter = '';
@@ -305,12 +305,13 @@ class SlideFunctions {
   }
 
   createBulletedList(params) {
-    const {objectId} = params;
+    const {bulletPreset, objectId} = params;
 
     let requests = [
       {
         createParagraphBullets: {
           objectId,
+          bulletPreset,
           textRange: {
             type: 'ALL',
           },
