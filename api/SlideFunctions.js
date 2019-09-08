@@ -157,7 +157,7 @@ class SlideFunctions {
   }
 
   createHeader(params) {
-    const {pageIndex, text} = params;
+    const {pageIndex, text, isSubheading} = params;
 
     let elementId = genId(5);
     let pt350 = {
@@ -178,7 +178,7 @@ class SlideFunctions {
             scaleX: 1,
             scaleY: 1,
             translateX: 180,
-            translateY: 15,
+            translateY: isSubheading ? 35 : 15,
             unit: 'PT',
           },
         },
@@ -195,9 +195,9 @@ class SlideFunctions {
       updateTextStyle: {
         objectId: elementId,
         style: {
-          bold: true,
+          bold: !isSubheading,
           fontSize: {
-            magnitude: 52,
+            magnitude: isSubheading ? 44 : 52,
             unit: 'PT',
           },
         },
