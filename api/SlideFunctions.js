@@ -3,6 +3,7 @@ const {google} = require('googleapis');
 class SlideFunctions {
   constructor(auth, presentationId, debugMode = false) {
     this.debugMode = debugMode;
+    this.entityList = {};
     return (async () => {
       this.slidesService = google.slides({version: 'v1', auth});
 
@@ -62,51 +63,96 @@ class SlideFunctions {
     });
   }
 
-  createTextboxWithText(params) {
-    const {pageIndex, text} = params;
+  async upsertText(params) {
+    const {text, entity, delimiter} = params;
+    const newEntity = !this.entityList[entity];
 
-    let elementId = genId(5);
-    let pt350 = {
-      magnitude: 350,
-      unit: 'PT',
-    };
-    let requests = [{
-      createShape: {
-        objectId: elementId,
-        shapeType: 'TEXT_BOX',
-        elementProperties: {
-          pageObjectId: this.getPageIdFromPageIndex(pageIndex),
-          size: {
-            height: pt350,
-            width: pt350,
-          },
-          transform: {
-            scaleX: 1,
-            scaleY: 1,
-            translateX: 350,
-            translateY: 100,
-            unit: 'PT',
+    console.log(this.entityList);
+    if (newEntity) {
+      console.log('test');
+      await this.createTextbox(params);
+    }
+    await this.appendText(params);
+
+    if (newEntity) {
+      this.entityList[entity] = text;
+    } else {
+      this.entityList[entity] += `${delimiter}${text}`;
+    }
+  }
+
+  createTextbox(params) {
+    return new Promise((resolve, reject) => {
+      const {pageIndex, entity} = params;
+
+      let requests = [{
+        createShape: {
+          objectId: entity,
+          shapeType: 'TEXT_BOX',
+          elementProperties: {
+            pageObjectId: this.getPageIdFromPageIndex(pageIndex),
+            size: {
+              height: {
+                magnitude: 300,
+                unit: 'PT',
+              },
+              width: {
+                magnitude: 600,
+                unit: 'PT',
+              },
+            },
+            transform: {
+              scaleX: 1,
+              scaleY: 1,
+              translateX: 50,
+              translateY: 100,
+              unit: 'PT',
+            },
           },
         },
-      },
-    },
-    // Insert text into the box, using the supplied element ID.
-    {
-      insertText: {
-        text,
-        objectId: elementId,
-        insertionIndex: 0,
-      },
-    }];
-    // Execute the request.
-    this.slidesService.presentations.batchUpdate({
-      presentationId: this.presentation.presentationId,
-      resource: {requests},
-    }, (err, res) => {
-      if (err) return console.log('The API returned an error: ' + err);
-      this.presentation = res.data;
-      let createShapeResponse = res.data.replies[0].createShape;
-      this.debugMode && console.log(`Created textbox with ID: ${createShapeResponse.objectId}`);
+      }];
+
+      this.slidesService.presentations.batchUpdate({
+        presentationId: this.presentation.presentationId,
+        resource: {requests},
+      }, async (err, res) => {
+        if (err) return console.log('The API returned an error: ' + err);
+        this.presentation = res.data;
+        let createShapeResponse = res.data.replies[0].createShape;
+        this.debugMode && console.log(`Created textbox with ID: ${createShapeResponse.objectId}`);
+        this.presentation = await this.scanSlides();
+        resolve(res.data);
+      });
+    });
+  }
+
+  appendText(params) {
+    return new Promise((resolve, reject) => {
+      const {entity, text} = params;
+      let delimiter = params.delimiter;
+      let insertionIndex = 0;
+      if (this.entityList[entity]) {
+        insertionIndex = this.entityList[entity].length;
+      } else {
+        delimiter = '';
+      }
+
+      let requests = [{
+        insertText: {
+          text: `${delimiter}${text}`,
+          insertionIndex,
+          objectId: entity,
+        }
+      }];
+
+      this.slidesService.presentations.batchUpdate({
+        presentationId: this.presentation.presentationId,
+        resource: {requests},
+      }, async (err, res) => {
+        if (err) return console.log('The API returned an error: ' + err);
+        this.presentation = await this.scanSlides();
+        resolve(res);
+      });
     });
   }
 
