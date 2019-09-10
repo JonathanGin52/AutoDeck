@@ -221,7 +221,8 @@ function image(transcript, resp, phrase) {
   if (resp.entities) {
     for (let i = 0; i < resp.entities.length; i++) {
       for (let j = 0; j < resp.entities[i].mentions.length; j++) {
-        if ((!currMin || Math.abs(index - resp.entities[i].mentions[j].text.beginOffset) < currMin) && !phrase.includes(resp.entities[i].mentions[j].text.content.toLowerCase())) {
+        if ((!currMin || Math.abs(index - resp.entities[i].mentions[j].text.beginOffset) < currMin) &&
+          !phrase.includes(resp.entities[i].mentions[j].text.content.toLowerCase())) {
           currMin = resp.entities[i].mentions[j].text.beginOffset;
           found = resp.entities[i].mentions[j].text.content;
         }
