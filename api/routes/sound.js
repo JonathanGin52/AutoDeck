@@ -1,8 +1,6 @@
 const language = require('@google-cloud/language');
 const NLPClient = new language.LanguageServiceClient();
 const fetch = require('node-fetch');
-const pictureMatches = ['picture of', 'image of', 'depiction of', 'pic of'];
-const bulletMatches = ['firstly', 'secondly', 'thirdly', 'fourthly', 'finally', 'first', 'second', 'third'];
 const defaultHeaders = {
   'Accept': 'application/json',
   'Content-Type': 'application/json'
@@ -211,9 +209,14 @@ function image(transcript, resp, phrase) {
   let query;
   if (phrase === 'another picture') {
     query = imageQueries[imageQueries.length - 1];
+    fetch('http://localhost:8080/slides/api/add_image', {
+      method: 'POST',
+      headers: defaultHeaders,
+      body: JSON.stringify({query}),
+    });
+    return;
   } else {
     query = resp.entities[resp.entities.length - 1].name;
-    imageQueries.push(query);
   }
   let found = null;
   let currMin = null;
@@ -230,6 +233,7 @@ function image(transcript, resp, phrase) {
     }
   }
   if (found) {
+    imageQueries.push(found);
     fetch('http://localhost:8080/slides/api/add_image', {
       method: 'POST',
       headers: defaultHeaders,
