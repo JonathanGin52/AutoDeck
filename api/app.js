@@ -1,15 +1,12 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const soundRouter = require('./routes/sound');
+const slidesRouter = require('./routes/slides');
 
-var soundRouter = require('./routes/sound');
-var slidesRouter = require('./routes/slides');
-
-var app = express();
-
-count = 0;
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -29,9 +26,9 @@ app.use('/slides', slidesRouter);
 app.use(express.static('public'));
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
+// app.use(function(req, res, next) {
+//   next(createError(404));
+// });
 
 // error handler
 app.use(function(err, req, res, next) {
@@ -45,13 +42,13 @@ app.use(function(err, req, res, next) {
 });
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname+'index.html'));
+  res.sendFile(path.join(__dirname + 'index.html'));
 });
 
 //server
 const port = 8080;
-app.listen(port, function () {
-  console.log('Example app listening on http://localhost:'+port);
+app.listen(port, () => {
+  console.log('Example app listening on http://localhost:' + port);
 });
 
 module.exports = app;

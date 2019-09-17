@@ -36,11 +36,12 @@ class DeckCreator extends React.Component {
 
   handleListen(event) {
     if (event.results[0][0].confidence > 0.90) {
-      console.log(event.results[0][0].transcript);
+      // console.log(event.results[0][0].transcript);
 
       axios.post('/api/record', {
         transcript: event.results[0][0].transcript
       });
+
       if (this.state.count === 3) {
         window.location.reload();
         this.setState({count: 0});
